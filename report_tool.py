@@ -23,7 +23,7 @@ def passwordGenny():
     # Generate a password and save it in 1Password
     print(colored("\nGenerating Password...", "green"))
     sleep(1)
-    results = subprocess.Popen(['op', 'item', 'create', '--category', 'Password', '--title', f'{companyName} Report', '--vault', 'Tests', '--generate-password=16,letters,symbols'], stdout=subprocess.PIPE, text=True)
+    results = subprocess.Popen(['op', 'item', 'create', '--category', 'Password', '--title', f'{companyName} Report', '--vault', 'Fileshare Reports', '--generate-password=16,letters,symbols'], stdout=subprocess.PIPE, text=True)
     output = results.communicate()
     lines = output[0].split('\n')
     
