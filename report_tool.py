@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from time import sleep
-import subprocess, requests, argparse, PyPDF2
+import subprocess, requests, argparse, PyPDF2, os, zipfile
 from termcolor import colored
 
 print("\n")
@@ -16,9 +16,9 @@ print("""
 This tool helps to encrypt a PDF with a password generated and stored in 1Password and then creates a 1-time link for that password.
 """)
 
-def passwordGenny():
+def passwordGenny(companyname):
     # Grab Company name from user
-    companyName = input("\nWhat is the companies name: ")
+    companyName = companyname
 
     # Generate a password and save it in 1Password
     print(colored("\nGenerating Password...", "green"))
@@ -33,7 +33,8 @@ def passwordGenny():
             password_value = line.split(':')[1].strip()
             generatedPassword = password_value
 
-    print(colored(f"\nGenerated Password & Saved in ", "green") + colored("1Password", "blue"))
+    print(colored(f"\nGenerated Password & Saved in ", "green") + colored("1Password", "blue") + colored(" as ", "green") + colored(f"{companyName}", "blue"))
+    print(colored(f"\nGenerated Password: {generatedPassword}", "green"))
     return generatedPassword
 
 def pdfEncryptor(pdfFile, password):
@@ -70,17 +71,33 @@ def oneTimeLink(password):
     link = "https://1ty.me/" + oneTimeRequest_link
     print("\n1-Time Link: " + colored(f"{link}", "cyan") + "\n")
 
+def zipup(filename, companyname):
+    zip_filename = f"{companyname}_Encrypted_Reports.zip"
+    print(f"[+] {filename}.pdf and {filename}.docx will now be encrypted in a pasword protected ZIP. [+]\n")
+
+    # Create a ZIP file
+    results = subprocess.Popen(['zip', '-e', f'{zip_filename}', f'{filename}.pdf', f'{filename}.docx', f'{filename}.doc'], stdout=subprocess.PIPE, text=True)
+    output = results.communicate()
+
+    print(colored(f"\nEncrypted ZIP file: {zip_filename}\n", "green"))
+
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", help="This is the PDF file you wish to encrypt.", required=True)
+parser.add_argument("-c", "--companyname", help="This is the name to which we save the password in 1Password.", required=True)
 parser.add_argument("-p", "--password", help="This is a password you might want to use to encrypt a PDF file.", required=False)
+parser.add_argument("-z", "--zip", help="This will zip up the non-encrypted PDF and DOC file and encrypt with the generated password.", action="store_true")
 args = parser.parse_args()
 
 if args.password:
-    userspassword = args.password
-    pdfEncryptor(userspassword)
-    oneTimeLink(userspassword)
+    pdfEncryptor(args.password)
+    oneTimeLink(args.password)
 
 if args.input:
-    onePass_Password = passwordGenny()
+    onePass_Password = passwordGenny(args.companyname)
     pdfEncryptor(args.input, onePass_Password)
     oneTimeLink(onePass_Password)
+    if args.zip:
+        filename = args.input.split(".")[0]
+        zipup(filename, args.companyname)
+    else:
+        pass
