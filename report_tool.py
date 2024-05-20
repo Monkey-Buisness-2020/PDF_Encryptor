@@ -12,7 +12,8 @@ print("""
  |  __/| |_| |  _|   | |___| | | | (__| |  | |_| | |_) | ||  __/ |   
  |_|   |____/|_|     |_____|_| |_|\___|_|   \__, | .__/ \__\___|_|   
                                             |___/|_|                 
-
+Author: Norseman2020
+      
 This tool helps to encrypt a PDF with a password generated and stored in 1Password and then creates a 1-time link for that password.
 """)
 
