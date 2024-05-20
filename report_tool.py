@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from time import sleep
-import subprocess, requests, argparse, PyPDF2, os, zipfile
+import subprocess, requests, argparse, PyPDF2
 from termcolor import colored
 
 print("\n")
@@ -33,29 +33,39 @@ def passwordGenny(companyname):
             password_value = line.split(':')[1].strip()
             generatedPassword = password_value
 
+    sleep(0.5)
     print(colored(f"\nGenerated Password & Saved in ", "green") + colored("1Password", "blue") + colored(" as ", "green") + colored(f"{companyName}", "blue"))
+    sleep(0.5)
     print(colored(f"\nGenerated Password: {generatedPassword}", "green"))
     return generatedPassword
 
 def pdfEncryptor(pdfFile, password):
-    print(f"\nEncrypting the " + colored(f"{pdfFile}", "yellow"))
+    print(f"\nEncrypting the " + colored(f"{pdfFile}", "yellow") + " file.")
     # Open the PDF file in read-binary mode
     with open(pdfFile, 'rb') as file:
-        pdf_reader = PyPDF2.PdfFileReader(file)
+        pdf_reader = PyPDF2.PdfReader(file)
 
         # Create a PDF writer object to write the encrypted PDF
-        pdf_writer = PyPDF2.PdfFileWriter()
+        pdf_writer = PyPDF2.PdfWriter()
 
         # Add all pages from the original PDF to the writer
-        for page_num in range(pdf_reader.numPages):
-            pdf_writer.addPage(pdf_reader.getPage(page_num))
+        for page_num in range(len(pdf_reader.pages)):
+            pdf_writer.add_page(pdf_reader.pages[page_num])
 
         # Encrypt the PDF with a password
         pdf_writer.encrypt(password)
 
         # Write the encrypted PDF to the output file
-        with open('encrypted_'+pdfFile, 'wb') as output_pdf:
-            pdf_writer.write(output_pdf)
+        isolated_pdfFile = pdfFile.split("/")[-1]
+        if "/" in pdfFile or "\\" in pdfFile:
+            print("\nremoving slashes from input...")
+            print(isolated_pdfFile)
+            with open('encrypted_'+isolated_pdfFile, 'wb') as output_pdf:
+                pdf_writer.write(output_pdf)
+            exit()
+        else:
+            with open('encrypted_'+isolated_pdfFile, 'wb') as output_pdf:
+                pdf_writer.write(output_pdf)
         
         print(f"\nEncrypted PDF: {colored(f'encypted_{pdfFile}', 'yellow')}")
 
@@ -73,7 +83,7 @@ def oneTimeLink(password):
 
 def zipup(filename, companyname):
     zip_filename = f"{companyname}_Encrypted_Reports.zip"
-    print(f"[+] {filename}.pdf and {filename}.docx will now be encrypted in a pasword protected ZIP. [+]\n")
+    print(f"- {filename}.pdf \n\n- {filename}.docx \n\nWill now be encrypted in a pasword protected ZIP.\n")
 
     # Create a ZIP file
     results = subprocess.Popen(['zip', '-e', f'{zip_filename}', f'{filename}.pdf', f'{filename}.docx', f'{filename}.doc'], stdout=subprocess.PIPE, text=True)

@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "pdf-encryptor"
+version = "0.1.0"
+description = "A tool used to encrypt PDF files and password protect them and create a link for the password."
+authors = ["Dean Smith"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.31.0"
+argparse = "^1.4.0"
+pypdf2 = "^3.0.1"
+termcolor = "^2.4.0"
+pdfreader = "^0.1.15"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
