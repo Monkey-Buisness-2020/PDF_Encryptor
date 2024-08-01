@@ -1,16 +1,16 @@
 #!/usr/bin/python3
 
 from time import sleep
-import subprocess, requests, argparse, PyPDF2
+import subprocess, requests, argparse, PyPDF2, os
 from termcolor import colored
 
 print("\n")
 print("""
-  ____  ____  _____   _____                             _            
- |  _ \|  _ \|  ___| | ____|_ __   ___ _ __ _   _ _ __ | |_ ___ _ __ 
- | |_) | | | | |_    |  _| | '_ \ / __| '__| | | | '_ \| __/ _ \ '__|
- |  __/| |_| |  _|   | |___| | | | (__| |  | |_| | |_) | ||  __/ |   
- |_|   |____/|_|     |_____|_| |_|\___|_|   \__, | .__/ \__\___|_|   
+  ____  ____  _____   _____                              _            
+ |  _ \|  _ \|  ___| | ____|_ __   ___ _ __ _   _ _ __  | |_ ___ _ __ 
+ | |_) | | | | |_    |  _| | '_ \ / __| '__| | | | '_ \ | __/ _ \ '__|
+ |  __/| |_| |  _|   | |___| | | | (__| |  | |_| | |_) ||  ||  __/ |   
+ |_|   |____/|_|     |_____|_| |_|\___|_|   \__, | .__/  \__\___|_|   
                                             |___/|_|                 
 Author: Norseman2020
       
@@ -42,6 +42,7 @@ def passwordGenny(companyname):
 
 def pdfEncryptor(pdfFile, password):
     print(f"\nEncrypting the " + colored(f"{pdfFile}", "yellow") + " file.")
+    
     # Open the PDF file in read-binary mode
     with open(pdfFile, 'rb') as file:
         pdf_reader = PyPDF2.PdfReader(file)
@@ -57,18 +58,15 @@ def pdfEncryptor(pdfFile, password):
         pdf_writer.encrypt(password)
 
         # Write the encrypted PDF to the output file
-        isolated_pdfFile = pdfFile.split("/")[-1]
-        if "/" in pdfFile or "\\" in pdfFile:
-            print("\nremoving slashes from input...")
-            print(isolated_pdfFile)
-            with open('encrypted_'+isolated_pdfFile, 'wb') as output_pdf:
-                pdf_writer.write(output_pdf)
-            exit()
-        else:
-            with open('encrypted_'+isolated_pdfFile, 'wb') as output_pdf:
-                pdf_writer.write(output_pdf)
+        isolated_pdfFile = os.path.basename(pdfFile)
+        filepath = os.path.dirname(pdfFile)
+        output_path = os.path.join(filepath, 'encrypted_' + isolated_pdfFile)
         
-        print(f"\nEncrypted PDF: {colored(f'encypted_{pdfFile}', 'yellow')}")
+        with open(output_path, 'wb') as output_pdf:
+            print(f"\nSaving to {output_path}")
+            pdf_writer.write(output_pdf)
+        
+        print(f"\nEncrypted PDF: {colored(f'{output_path}', 'yellow')}")
 
 def oneTimeLink(password):
     # Generate a 1-Time link with the generated password as the "note", print out the URL path.
