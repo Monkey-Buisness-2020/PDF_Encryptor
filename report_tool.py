@@ -27,18 +27,28 @@ def passwordGenny(companyname):
     results = subprocess.Popen(['op', 'item', 'create', '--category', 'Password', '--title', f'{companyName} Report', '--vault', 'Fileshare Reports', '--generate-password=16,letters,symbols'], stdout=subprocess.PIPE, text=True)
     output = results.communicate()
     lines = output[0].split('\n')
+    password_ID = ""
+    password_for_PDF_encryption = ""
     
-    generatedPassword = ""
-    for line in lines:
-        if line.strip().startswith("password:"):
-            password_value = line.split(':')[1].strip()
-            generatedPassword = password_value
+    for item in lines:
+        if item.startswith("ID:"):
+            id_value = item.split(":")[1].strip()
+            password_ID = id_value
+
+    reveal_password = subprocess.Popen(['op', 'item', 'get', f'{password_ID}', '--reveal'], stdout=subprocess.PIPE, text=True)
+    generated_password = reveal_password.communicate()
+    text_data = generated_password[0]
+    for line in text_data.splitlines():
+        if 'password:' in line:
+            # Split the line by ':' and strip any leading/trailing spaces to get the password value
+            password = line.split(':')[1].strip()
+            password_for_PDF_encryption = password
 
     sleep(0.5)
     print(colored(f"\nGenerated Password & Saved in ", "green") + colored("1Password", "blue") + colored(" as ", "green") + colored(f"{companyName}", "blue"))
     sleep(0.5)
-    print(colored(f"\nGenerated Password: {generatedPassword}", "green"))
-    return generatedPassword
+    print(colored(f"\nGenerated Password: {password_for_PDF_encryption}", "green"))
+    return password_for_PDF_encryption
 
 def pdfEncryptor(pdfFile, password):
     print(f"\nEncrypting the " + colored(f"{pdfFile}", "yellow") + " file.")
